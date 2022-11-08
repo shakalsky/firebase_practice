@@ -1,9 +1,33 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_practice/presentation/pages/authorization/authorization_page.dart';
 import 'package:flutter/material.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final List<String> names = [];
+
+  Future<void> fetchData() async {
+    await FirebaseFirestore.instance.collection('users').get().then(
+          (value) => value.docs.forEach(
+            (document) => names.add(
+              document.data()['name'],
+            ),
+          ),
+        );
+  }
+
+  @override
+  void initState() {
+    fetchData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,44 +36,24 @@ class HomePage extends StatelessWidget {
         return false;
       },
       child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => FirebaseAuth.instance.signOut(),
+          ),
+          title: Text(FirebaseAuth.instance.currentUser?.email ?? '_'),
+        ),
         body: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(FirebaseAuth.instance.currentUser!.email!),
-                    const SizedBox(
-                      height: 8.0,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: GestureDetector(
-                        onTap: () => FirebaseAuth.instance.signOut(),
-                        child: Container(
-                          padding: const EdgeInsets.all(20.0),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[900],
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'Sign out',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              return ListView.builder(
+                itemCount: names.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    title: Text("item ${names[index]}"),
+                  );
+                },
               );
             } else {
               return const AuthPage();

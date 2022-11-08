@@ -14,7 +14,6 @@ class AuthorizationBloc extends Bloc<AuthorizationEvent, AuthorizationState> {
     AuthorizationActionSwitched event,
     Emitter<AuthorizationState> emit,
   ) {
-    print('object');
     emit(
       state.copyWith(
         showLoginPage: !state.showLoginPage,

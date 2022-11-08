@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_practice/presentation/pages/authorization/authorization_block/authorization_bloc.dart';
 import 'package:flutter/material.dart';
@@ -12,12 +13,14 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
+  final _nameTextController = TextEditingController();
   final _emailTextController = TextEditingController();
   final _passwordTextController = TextEditingController();
   final _passwordRepeatedTextController = TextEditingController();
 
   @override
   void dispose() {
+    _nameTextController.dispose();
     _emailTextController.dispose();
     _passwordTextController.dispose();
     _passwordRepeatedTextController.dispose();
@@ -29,6 +32,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
       email: _emailTextController.text.trim(),
       password: _passwordTextController.text.trim(),
     );
+    await FirebaseFirestore.instance.collection('users').add({
+      'name': _nameTextController.text.trim(),
+    });
   }
 
   @override
@@ -72,6 +78,32 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       ),
                       const SizedBox(
                         height: 48.0,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            border: Border.all(
+                              color: Colors.white,
+                            ),
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 16.0),
+                            child: TextField(
+                              obscureText: true,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Name',
+                              ),
+                              controller: _nameTextController,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 8.0,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -155,7 +187,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         child: GestureDetector(
                           onTap: () async {
                             await signUp();
-                            print('registered');
                           },
                           child: Container(
                             padding: const EdgeInsets.all(20.0),
