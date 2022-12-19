@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_practice/presentation/pages/authorization/authorization_page.dart';
 import 'package:flutter/material.dart';
@@ -13,19 +12,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final List<String> names = [];
 
-  Future<void> fetchData() async {
-    await FirebaseFirestore.instance.collection('users').get().then(
-          (value) => value.docs.forEach(
-            (document) => names.add(
-              document.data()['name'],
-            ),
-          ),
-        );
-  }
-
   @override
   void initState() {
-    fetchData();
     super.initState();
   }
 
@@ -42,6 +30,12 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => FirebaseAuth.instance.signOut(),
           ),
           title: Text(FirebaseAuth.instance.currentUser?.email ?? '_'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.fire_truck_rounded),
+              onPressed: () => {},
+            ),
+          ],
         ),
         body: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
